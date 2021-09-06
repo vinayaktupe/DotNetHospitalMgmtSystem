@@ -1,0 +1,110 @@
+﻿@model UserDoctorViewModel
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Doctor</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-6">
+                        <label asp-for="User.FirstName"></label>
+                        <input asp-for="User.FirstName" class="form-control" />
+                        <span asp-validation-for="User.FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-6">
+                        <label asp-for="User.LastName"></label>
+                        <input asp-for="User.LastName" class="form-control" />
+                        <span asp-validation-for="User.LastName" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label asp-for="User.Number"></label>
+                        <input asp-for="User.Number" class="form-control" />
+                        <span asp-validation-for="User.Number" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label asp-for="User.Role" class="control-label"></label>
+                        <select asp-for="User.Role" class="form-control">
+                            <option value="0" selected>Doctor</option>
+                        </select>
+                        <span asp-validation-for="User.Role" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="User.Address"></label>
+                <input asp-for="User.Address" class="form-control" />
+                <span asp-validation-for="User.Address" class="text-danger"></span>
+            </div>
+            <div class="row">
+                <div class="col-8">
+                    <div class="form-group">
+                        <label asp-for="User.Email"></label>
+                        <input asp-for="User.Email" class="form-control" />
+                        <span asp-validation-for="User.Email" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-4">
+
+                    <div class="form-group">
+                        <label asp-for="Password"></label>
+                        <input asp-for="Password" class="form-control" value="User@123" disabled />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            @*<div class="form-group">
+                    <label asp-for="User" class="control-label"></label>
+                    <input asp-for="User" class="form-control" />
+                    <span asp-validation-for="User" class="text-danger"></span>
+                </div>*@
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <label asp-for="Doctor.Specialization" class="control-label"></label>
+                        <select asp-for="Doctor.Specialization" class="form-control" asp-items="Html.GetEnumSelectList<Specialization>()">
+                            <option value="-1" selected disabled>Select Specialization</option>
+                        </select>
+                        <span asp-validation-for="Doctor.Specialization" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <label asp-for="Doctor.YearsOfExperience" class="control-label"></label>
+                        <input asp-for="Doctor.YearsOfExperience" class="form-control" />
+                        <span asp-validation-for="Doctor.YearsOfExperience" class="text-danger"></span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group">
+                <label asp-for="Doctor.AdditionalInfo" class="control-label"></label>
+                <input asp-for="Doctor.AdditionalInfo" class="form-control" />
+                <span asp-validation-for="Doctor.AdditionalInfo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

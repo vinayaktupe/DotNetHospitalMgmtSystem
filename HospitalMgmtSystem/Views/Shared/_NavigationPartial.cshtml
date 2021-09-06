@@ -1,0 +1,18 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Doctors" asp-action="Index">Doctor</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Patients" asp-action="Index">Patient</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="CasePapers" asp-action="Index">CasePaper</a>
+        </li>
+    }
+}
