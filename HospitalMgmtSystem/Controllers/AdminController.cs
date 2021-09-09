@@ -20,13 +20,13 @@ namespace HospitalMgmtSystem.Controllers
             this.roleManager = roleManager;
         }
 
-        //// GET: AdminController/createrole
-        //public ActionResult CreateRole()
-        //{
-        //    return View();
-        //}
+        // GET: AdminController/createrole
+        public ActionResult CreateRole()
+        {
+            return View();
+        }
 
-        //// POST: AdminController/createrole
+        // POST: AdminController/createrole
         //[HttpPost]
         //[ValidateAntiForgeryToken]
         //public async Task<IActionResult> CreateRole(UserRolesViewModel model)

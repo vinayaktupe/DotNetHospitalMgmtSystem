@@ -6,14 +6,23 @@ using System.Text;
 
 namespace HospitalMgmtSystem.DAL.Data.Model
 {
+    [Table("Doctors")]
     public class Doctor
     {
+        public Doctor()
+        {
+            CasePapers = new HashSet<CasePaper>();
+            //CaseFiles = new HashSet<CaseFile>();
+        }
+
         [Key]
         public int ID { get; set; }
 
         //[ForeignKey("Id")]
         //public ApplicationUser User { get; set; }
-        public string User { get; set; }
+        //public string User { get; set; }
+
+        public string UserId { get; set; }
 
         [Required(ErrorMessage = "Please select Specialization")]
         public Specialization Specialization { get; set; }
@@ -25,6 +34,17 @@ namespace HospitalMgmtSystem.DAL.Data.Model
         public string AdditionalInfo { get; set; }
 
         public bool? IsActive { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        [InverseProperty("Doctors")]
+        public virtual ApplicationUser Users { get; set; }
+
+        [InverseProperty("Doctors")]
+        public virtual ICollection<CasePaper> CasePapers { get; set; }
+
+        //[InverseProperty("Doctors")]
+        //public virtual ICollection<CaseFile> CaseFiles { get; set; }
+
 
     }
 

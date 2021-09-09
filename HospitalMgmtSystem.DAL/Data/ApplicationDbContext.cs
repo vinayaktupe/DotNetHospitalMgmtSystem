@@ -13,44 +13,63 @@ namespace HospitalMgmtSystem.DAL.Data
             : base(options)
         {
         }
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<ApplicationUser>().Property(appUser => appUser.CreatedAt).HasDefaultValue(DateTime.Now);
-            builder.Entity<ApplicationUser>().Property(appUser => appUser.IsAdmin).HasDefaultValue(false);
-            builder.Entity<ApplicationUser>().Property(appUser => appUser.IsActive).HasDefaultValue(true);
-            base.OnModelCreating(builder);
-        }
-    }
-    public class UserDbContext : DbContext
-    {
-        public UserDbContext(DbContextOptions<UserDbContext> options)
-            : base(options)
-        {
-        }
 
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<Patient> Patients { get; set; }
         public DbSet<CasePaper> CasePapers { get; set; }
         public DbSet<CaseFile> CaseFiles { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            modelBuilder.Entity<Doctor>().Property(doctor => doctor.IsActive).HasDefaultValue(false);
-            //modelBuilder.Entity<Doctor>().HasIndex(doctor => new { doctor.User }).IsUnique(unique: true);
+            builder.Entity<ApplicationUser>().Property(appUser => appUser.CreatedAt).HasDefaultValue(DateTime.Now);
+            builder.Entity<ApplicationUser>().Property(appUser => appUser.IsAdmin).HasDefaultValue(false);
+            builder.Entity<ApplicationUser>().Property(appUser => appUser.IsActive).HasDefaultValue(true);
 
 
-            modelBuilder.Entity<Patient>().Property(patient => patient.IsActive).HasDefaultValue(false);
-            //modelBuilder.Entity<Patient>().HasIndex(patient => new { patient.User }).IsUnique(unique: true);
+            builder.Entity<Doctor>().Property(doctor => doctor.IsActive).HasDefaultValue(false);
+
+            //Patient MODEL DESIGN
+            builder.Entity<Patient>().Property(patient => patient.IsActive).HasDefaultValue(false);
 
             //CasePaper MODEL DESIGN
-            modelBuilder.Entity<CasePaper>().Property(paper => paper.IsSolved).HasDefaultValue(false);
-            modelBuilder.Entity<CasePaper>().Property(paper => paper.IsActive).HasDefaultValue(false);
-            modelBuilder.Entity<CasePaper>().Property(paper => paper.CreatedAt).HasDefaultValue(DateTime.Now);
+            builder.Entity<CasePaper>().Property(paper => paper.IsSolved).HasDefaultValue(false);
+            builder.Entity<CasePaper>().Property(paper => paper.ForSelf).HasDefaultValue(true);
+            builder.Entity<CasePaper>().Property(paper => paper.IsActive).HasDefaultValue(true);
+            builder.Entity<CasePaper>().Property(paper => paper.CreatedAt).HasDefaultValue(DateTime.Now);
 
-            modelBuilder.Entity<CaseFile>().Property(file => file.CreatedAt).HasDefaultValue(DateTime.Now);
-
-            //modelBuilder.Entity<CasePaper>().HasIndex(paper => new { paper.ID, paper.Doctor, paper.Patient }).IsUnique(unique: true);
+            base.OnModelCreating(builder);
         }
-
     }
+    //public class UserDbContext : DbContext
+    //{
+    //    public UserDbContext(DbContextOptions<UserDbContext> options)
+    //        : base(options)
+    //    {
+    //    }
+
+    //    public DbSet<Doctor> Doctors { get; set; }
+    //    public DbSet<Patient> Patients { get; set; }
+    //    public DbSet<CasePaper> CasePapers { get; set; }
+    //    public DbSet<CaseFile> CaseFiles { get; set; }
+
+    //    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    //    {
+    //        //Doctor MODEL DESIGN
+    //        modelBuilder.Entity<Doctor>().Property(doctor => doctor.IsActive).HasDefaultValue(false);
+
+    //        //Patient MODEL DESIGN
+    //        modelBuilder.Entity<Patient>().Property(patient => patient.IsActive).HasDefaultValue(false);
+
+    //        //CasePaper MODEL DESIGN
+    //        modelBuilder.Entity<CasePaper>().Property(paper => paper.IsSolved).HasDefaultValue(false);
+    //        modelBuilder.Entity<CasePaper>().Property(paper => paper.ForSelf).HasDefaultValue(true);
+    //        modelBuilder.Entity<CasePaper>().Property(paper => paper.IsActive).HasDefaultValue(true);
+    //        modelBuilder.Entity<CasePaper>().Property(paper => paper.CreatedAt).HasDefaultValue(DateTime.Now);
+
+    //        //CaseFile MODEL DESIGN
+    //        modelBuilder.Entity<CaseFile>().Property(file => file.CreatedAt).HasDefaultValue(DateTime.Now);
+    //        base.OnModelCreating(modelBuilder);
+    //    }
+
+    //}
 }

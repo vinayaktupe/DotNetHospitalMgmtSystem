@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using HospitalMgmtSystem.DAL.Data.Model;
+using HospitalMgmtSystem.DAL.Data;
 
 namespace HospitalMgmtSystem.Areas.Identity.Pages.Account
 {
@@ -19,14 +20,17 @@ namespace HospitalMgmtSystem.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDbContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
         public LoginModel(SignInManager<ApplicationUser> signInManager, 
             ILogger<LoginModel> logger,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+             ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context;
             _signInManager = signInManager;
             _logger = logger;
         }
@@ -80,8 +84,11 @@ namespace HospitalMgmtSystem.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                var isActiveUser = _context.Users.Any(user => user.IsActive != false && user.Email == Input.Email);
+                
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
+
+                if (result.Succeeded && isActiveUser)
                 {
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);

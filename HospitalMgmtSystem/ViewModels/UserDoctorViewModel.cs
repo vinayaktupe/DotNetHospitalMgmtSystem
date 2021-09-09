@@ -9,13 +9,17 @@ namespace HospitalMgmtSystem.ViewModels
 {
     public class UserDoctorViewModel
     {
-        public ApplicationUser User { get; set; }
-        public Doctor Doctor { get; set; }
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string Number { get; set; }
+        public string Address { get; set; }
+        public string Email { get; set; }
+        public Specialization Specialization { get; set; }
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Password")]
-        public string Password { get; set; }
+        [Display(Name ="Years of Experience")]
+        public int YearsOfExperience { get; set; }
+
+        [Display(Name = "Additional Information")]
+        public string AdditionalInformation { get; set; }
     }
 }

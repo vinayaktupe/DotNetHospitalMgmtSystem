@@ -46,7 +46,7 @@ namespace HospitalMgmtSystem.DAL.Migrations
                     Address = table.Column<string>(maxLength: 250, nullable: false),
                     Role = table.Column<int>(nullable: false),
                     IsAdmin = table.Column<bool>(nullable: true, defaultValue: false),
-                    CreatedAt = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2021, 9, 4, 20, 28, 26, 321, DateTimeKind.Local).AddTicks(9992)),
+                    CreatedAt = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2021, 9, 8, 13, 45, 21, 779, DateTimeKind.Local).AddTicks(338)),
                     UpdatedAt = table.Column<DateTime>(nullable: true),
                     IsActive = table.Column<bool>(nullable: true, defaultValue: true)
                 },
@@ -101,8 +101,8 @@ namespace HospitalMgmtSystem.DAL.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(nullable: false),
+                    ProviderKey = table.Column<string>(nullable: false),
                     ProviderDisplayName = table.Column<string>(nullable: true),
                     UserId = table.Column<string>(nullable: false)
                 },
@@ -146,8 +146,8 @@ namespace HospitalMgmtSystem.DAL.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(nullable: false),
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    Name = table.Column<string>(maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
                     Value = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -158,6 +158,108 @@ namespace HospitalMgmtSystem.DAL.Migrations
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Doctors",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(nullable: true),
+                    Specialization = table.Column<int>(nullable: false),
+                    YearsOfExperience = table.Column<int>(nullable: false),
+                    AdditionalInfo = table.Column<string>(maxLength: 250, nullable: true),
+                    IsActive = table.Column<bool>(nullable: true, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Doctors", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Doctors_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Patients",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(nullable: true),
+                    BloodGroup = table.Column<int>(nullable: false),
+                    MedicalHistory = table.Column<string>(nullable: false),
+                    AdditionalInfo = table.Column<string>(maxLength: 250, nullable: true),
+                    IsActive = table.Column<bool>(nullable: true, defaultValue: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Patients", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Patients_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CasePapers",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DoctorID = table.Column<int>(nullable: false),
+                    PatientID = table.Column<int>(nullable: false),
+                    PatientName = table.Column<string>(nullable: true),
+                    Description = table.Column<string>(nullable: true),
+                    ForSelf = table.Column<bool>(nullable: false, defaultValue: true),
+                    IsSolved = table.Column<bool>(nullable: true, defaultValue: false),
+                    CreatedAt = table.Column<DateTime>(nullable: true, defaultValue: new DateTime(2021, 9, 8, 13, 45, 21, 783, DateTimeKind.Local).AddTicks(7919)),
+                    UpdatedAt = table.Column<DateTime>(nullable: true),
+                    IsActive = table.Column<bool>(nullable: true, defaultValue: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CasePapers", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CasePapers_Doctors_DoctorID",
+                        column: x => x.DoctorID,
+                        principalTable: "Doctors",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CasePapers_Patients_PatientID",
+                        column: x => x.PatientID,
+                        principalTable: "Patients",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CaseFiles",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CaseID = table.Column<int>(nullable: false),
+                    FileType = table.Column<int>(nullable: false),
+                    Fields = table.Column<string>(nullable: true),
+                    CreatedAt = table.Column<DateTime>(nullable: true),
+                    UpdatedAt = table.Column<DateTime>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CaseFiles", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_CaseFiles_CasePapers_CaseID",
+                        column: x => x.CaseID,
+                        principalTable: "CasePapers",
+                        principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -199,6 +301,35 @@ namespace HospitalMgmtSystem.DAL.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CaseFiles_CaseID",
+                table: "CaseFiles",
+                column: "CaseID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CasePapers_DoctorID",
+                table: "CasePapers",
+                column: "DoctorID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CasePapers_PatientID",
+                table: "CasePapers",
+                column: "PatientID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Doctors_UserId",
+                table: "Doctors",
+                column: "UserId",
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Patients_UserId",
+                table: "Patients",
+                column: "UserId",
+                unique: true,
+                filter: "[UserId] IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -219,7 +350,19 @@ namespace HospitalMgmtSystem.DAL.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "CaseFiles");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "CasePapers");
+
+            migrationBuilder.DropTable(
+                name: "Doctors");
+
+            migrationBuilder.DropTable(
+                name: "Patients");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
