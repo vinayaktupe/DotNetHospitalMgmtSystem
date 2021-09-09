@@ -18,6 +18,7 @@
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HospitalMgmtSystem.DAL\HospitalMgmtSystem.DAL.csproj" />
+    <ProjectReference Include="..\HospitalMgmtSystem.Services\HospitalMgmtSystem.Services.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,6 +9,8 @@ namespace HospitalMgmtSystem.DAL.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
+        public ApplicationDbContext(){}
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -38,6 +40,11 @@ namespace HospitalMgmtSystem.DAL.Data
             builder.Entity<CasePaper>().Property(paper => paper.CreatedAt).HasDefaultValue(DateTime.Now);
 
             base.OnModelCreating(builder);
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer("Server=vinayakt\\SQLEXPRESS;Database=HospitalMgmtSystem_Final;Trusted_Connection=True;MultipleActiveResultSets=true");
+            base.OnConfiguring(optionsBuilder);
         }
     }
     //public class UserDbContext : DbContext

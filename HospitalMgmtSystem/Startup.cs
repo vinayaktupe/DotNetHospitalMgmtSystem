@@ -1,5 +1,6 @@
 using HospitalMgmtSystem.DAL.Data;
 using HospitalMgmtSystem.DAL.Data.Model;
+using HospitalMgmtSystem.Services.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -46,6 +47,7 @@ namespace HospitalMgmtSystem
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             //services.AddDefaultIdentity<ApplicationUser>()
             //    .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped<IDoctorService, DoctorService>();
 
             services.AddControllersWithViews();
 
