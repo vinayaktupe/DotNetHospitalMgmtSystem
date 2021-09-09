@@ -24,11 +24,10 @@ namespace HospitalMgmtSystem.Controllers
 
         //private readonly UserDbContext _context;
 
-        public DoctorsController(UserManager<ApplicationUser> userManager, ILogger<UserDoctorRegisterModel> logger, ApplicationDbContext appContext, IDoctorService doctorService/*, UserDbContext context*/)
+        public DoctorsController(UserManager<ApplicationUser> userManager, ILogger<UserDoctorRegisterModel> logger, ApplicationDbContext appContext, IDoctorService doctorService)
         {
             this._userManager = userManager;
             this._logger = logger;
-            //this._appContext = appContext;
             _context = appContext;
             this._doctorService = doctorService;
         }
@@ -36,59 +35,6 @@ namespace HospitalMgmtSystem.Controllers
         // GET: Doctors
         public async Task<IActionResult> Index()
         {
-            //var res = _appContext.Users.Where(user => user.IsActive != false)
-            //    .Join(
-            //    _context.Doctors,
-            //    user => user.Id,
-            //    doctor => doctor.User,
-            //    (appuser, doc) => new
-            //    {
-            //        doc.ID,
-            //        Name = appuser.FirstName + " " + appuser.LastName,
-            //        appuser.Address,
-            //        appuser.Email,
-            //        appuser.Number,
-            //        doc.Specialization,
-            //        doc.YearsOfExperience,
-            //        AdditionalInformation = doc.AdditionalInfo,
-            //    }
-            //    ).Cast<UserDoctorViewModel>().OrderBy(model => new { model.Specialization, model.YearsOfExperience, model.Name }).AsEnumerable();
-
-            //var appUser = await Task.Run(() => _appContext.Users.Where(user => user.IsActive != false && user.Role == Role.Doctor).AsEnumerable());
-
-            //var doctor = await Task.Run(() => _context.Doctors.Where(doctor => doctor.IsActive != false).AsEnumerable());
-
-            //var res = appUser;
-            //(from user in appUser
-            //           join doc in doctor
-            //           on user.Id equals doc.User
-            //           orderby doc.Specialization, doc.YearsOfExperience
-            //           select new UserDoctorViewModel
-            //           {
-            //               ID = doc.ID,
-            //               Name = user.FirstName + " " + user.LastName,
-            //               Address = user.Address,
-            //               Email = user.Email,
-            //               Number = user.Number,
-            //               Specialization = doc.Specialization,
-            //               YearsOfExperience = doc.YearsOfExperience,
-            //               AdditionalInformation = doc.AdditionalInfo,
-            //           });
-
-            //return View(await _context.Doctors.ToListAsync());
-            //var res =
-            //    _context.Doctors.Where(doc => doc.IsActive != false && doc.Users.IsActive != false).Select(doc => new UserDoctorViewModel
-            //    {
-            //        ID = doc.ID,
-            //        Name = doc.Users.FirstName + " " + doc.Users.LastName,
-            //        Number = doc.Users.Number,
-            //        Email = doc.Users.Email,
-            //        Address = doc.Users.Address,
-            //        Specialization = doc.Specialization,
-            //        YearsOfExperience = doc.YearsOfExperience,
-            //        AdditionalInformation = doc.AdditionalInfo
-            //    })
-            //    .AsEnumerable();
             var res = await _doctorService.GetAllDoctors();
             return View(res);
         }
@@ -96,21 +42,12 @@ namespace HospitalMgmtSystem.Controllers
         // GET: Doctors/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            //if (id == null)
-            //{
-            //    return NotFound();
-            //}
-
-            //var doc = await _context.Doctors
-            //    .Include("Users")
-            //    .FirstOrDefaultAsync(m => m.ID == id && m.IsActive != false);
             var doc = await _doctorService.GetDoctorByID(id);
 
             if (doc == null)
             {
                 return NotFound();
             }
-            //var user = await _appContext.Users.FirstOrDefaultAsync(appUser => appUser.Id == doc.User && appUser.IsActive != false);
 
             var doctor = new UserDoctorViewModel()
             {
@@ -140,8 +77,6 @@ namespace HospitalMgmtSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID, FirstName, LastName, Number, Address, Email, Specialization, YearsOfExperience, AdditionalInfo")] UserDoctorRegisterModel receivedDoctor)
         {
-            //UserDoctorRegisterModel model = new UserDoctorRegisterModel() { User = user, Doctor = doctor };
-            //user.UserName = user.Email;
             receivedDoctor.ID = 0;
 
 
@@ -175,8 +110,7 @@ namespace HospitalMgmtSystem.Controllers
                     _logger.LogInformation("User created a new account with password.");
                     await _userManager.AddToRoleAsync(user, "Doctor");
                     doctor.UserId = user.Id;
-                    //_context.Doctors.Add(doctor);
-                    //await _context.SaveChangesAsync();
+
                     await _doctorService.CreateDoctor(doctor);
                     return RedirectToAction(nameof(Index));
                 }
@@ -194,7 +128,6 @@ namespace HospitalMgmtSystem.Controllers
         // GET: Doctors/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            //var res = await _context.Doctors.Include("Users").FirstOrDefaultAsync(doc => doc.ID == id);
             var res = await _doctorService.GetDoctorByID(id);
             var doctor = new UserDoctorRegisterModel()
             {
@@ -233,9 +166,6 @@ namespace HospitalMgmtSystem.Controllers
             {
                 try
                 {
-                    //var doctor = await _context.Doctors.FindAsync(receivedDoctor.ID);
-                    //var user = await _context.Users.FindAsync(doctor.UserId);
-
                     var doctor = await _doctorService.GetDoctorByID(receivedDoctor.ID);
 
                     doctor.Users.FirstName = receivedDoctor.FirstName;
@@ -247,7 +177,6 @@ namespace HospitalMgmtSystem.Controllers
                     doctor.YearsOfExperience = receivedDoctor.YearsOfExperience;
                     doctor.AdditionalInfo = receivedDoctor.AdditionalInfo;
 
-                    //_context.Doctors.Update(doctor);
                     await _doctorService.UpdateDoctor(doctor);
                 }
                 catch (DbUpdateConcurrencyException)
@@ -269,12 +198,7 @@ namespace HospitalMgmtSystem.Controllers
         // GET: Doctors/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            //var doctor = await _context.Doctors
-            //    .Include("Users")
-            //    .FirstOrDefaultAsync(m => m.ID == id);
-            //var user = await _appContext.Users.FirstOrDefaultAsync(m => m.Id == doctor.User);
-
-            var doctor = await _doctorService.GetDoctorByID(id);
+           var doctor = await _doctorService.GetDoctorByID(id);
 
             UserDoctorViewModel model = new UserDoctorViewModel()
             {
@@ -300,20 +224,13 @@ namespace HospitalMgmtSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            //var doctor = await _context.Doctors
-            //    .Include("Users")
-            //    .FirstOrDefaultAsync(doc => doc.ID == id);
-            //var user = await _appContext.Users.FirstOrDefaultAsync(m => m.Id == doctor.User);
-
-            var doctor = await _doctorService.GetDoctorByID(id);
+           var doctor = await _doctorService.GetDoctorByID(id);
 
 
             doctor.IsActive = false;
-            //user.IsActive = false;
             doctor.Users.IsActive = false;
 
             await _doctorService.UpdateDoctor(doctor);
-            //await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
