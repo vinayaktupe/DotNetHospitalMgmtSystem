@@ -17,5 +17,23 @@
                 <a class="nav-link text-dark" asp-controller="CasePapers" asp-action="Index">CasePaper</a>
             </li>
         }
+        else if (User.IsInRole("Doctor"))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Doctors" asp-action="Index">Today's Appoinments</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Patients" asp-action="Index">Past Appoinments</a>
+            </li>
+        }
+        else if (User.IsInRole("Patient"))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Doctors" asp-action="Index">Active Appoinments</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-dark" asp-controller="Patients" asp-action="Index">Past Appoinments</a>
+            </li>
+        }
     }
 }
