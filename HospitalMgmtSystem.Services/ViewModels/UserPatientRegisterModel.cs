@@ -9,6 +9,7 @@ namespace HospitalMgmtSystem.Services.ViewModels
     public class UserPatientRegisterModel
     {
         //USER MODEL
+        [Required]
         public string Email { get; set; }
 
         public int ID { get; set; }
