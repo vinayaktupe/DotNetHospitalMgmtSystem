@@ -47,7 +47,9 @@ namespace HospitalMgmtSystem
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             //services.AddDefaultIdentity<ApplicationUser>()
             //    .AddEntityFrameworkStores<ApplicationDbContext>();
+
             services.AddScoped<IDoctorService, DoctorService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddControllersWithViews();
 

@@ -1,35 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using HospitalMgmtSystem.DAL.Data;
-using HospitalMgmtSystem.DAL.Data.Model;
-using HospitalMgmtSystem.Services.ViewModels;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http;
+﻿using HospitalMgmtSystem.DAL.Data.Model;
 using HospitalMgmtSystem.Services.Services;
+using HospitalMgmtSystem.Services.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace HospitalMgmtSystem.Controllers
 {
     public class DoctorsController : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<UserDoctorRegisterModel> _logger;
-        private readonly ApplicationDbContext _context;
         private readonly IDoctorService _doctorService;
+        private readonly IUserService _userService;
 
-        //private readonly UserDbContext _context;
-
-        public DoctorsController(UserManager<ApplicationUser> userManager, ILogger<UserDoctorRegisterModel> logger, ApplicationDbContext appContext, IDoctorService doctorService)
+        public DoctorsController(ILogger<UserDoctorRegisterModel> logger, IDoctorService doctorService, IUserService userService)
         {
-            this._userManager = userManager;
             this._logger = logger;
-            _context = appContext;
             this._doctorService = doctorService;
+            this._userService = userService;
         }
 
         // GET: Doctors
@@ -103,23 +92,13 @@ namespace HospitalMgmtSystem.Controllers
                     IsActive = true
                 };
 
-                var result = await _userManager.CreateAsync(user, "User@123");
+                bool isAdded = await _userService.CreateUser(user, "Doctor");
 
-                if (result.Succeeded)
+                if (isAdded)
                 {
-                    _logger.LogInformation("User created a new account with password.");
-                    await _userManager.AddToRoleAsync(user, "Doctor");
                     doctor.UserId = user.Id;
-
                     await _doctorService.CreateDoctor(doctor);
                     return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        _logger.LogError($"Error: {error.Code} - {error.Description}");
-                    }
                 }
             }
             return View();
@@ -129,6 +108,7 @@ namespace HospitalMgmtSystem.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var res = await _doctorService.GetDoctorByID(id);
+
             var doctor = new UserDoctorRegisterModel()
             {
                 ID = res.ID,
@@ -198,7 +178,7 @@ namespace HospitalMgmtSystem.Controllers
         // GET: Doctors/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-           var doctor = await _doctorService.GetDoctorByID(id);
+            var doctor = await _doctorService.GetDoctorByID(id);
 
             UserDoctorViewModel model = new UserDoctorViewModel()
             {
@@ -224,7 +204,7 @@ namespace HospitalMgmtSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-           var doctor = await _doctorService.GetDoctorByID(id);
+            var doctor = await _doctorService.GetDoctorByID(id);
 
 
             doctor.IsActive = false;
@@ -237,7 +217,7 @@ namespace HospitalMgmtSystem.Controllers
 
         private bool DoctorExists(int id)
         {
-            return _context.Doctors.Any(e => e.ID == id);
+            return _doctorService.GetDoctorByID(id) != null;
         }
     }
 }
