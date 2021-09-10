@@ -7,16 +7,55 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HospitalMgmtSystem.DAL.Data;
 using HospitalMgmtSystem.DAL.Data.Model;
+using HospitalMgmtSystem.Services.Services;
+using HospitalMgmtSystem.Services.ViewModels;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using HospitalMgmtSystem.DAL.Repository;
 
 namespace HospitalMgmtSystem.Controllers
 {
     public class CasePapersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger _logger;
+        private readonly IDoctorService _doctorService;
+        private readonly IPatientService _patientService;
 
-        public CasePapersController(ApplicationDbContext context)
+        public CasePapersController(ApplicationDbContext context, ILogger<CasePapersController> logger, IDoctorService doctorService, IPatientService patientService)
         {
             _context = context;
+            this._logger = logger;
+            this._doctorService = doctorService;
+            this._patientService = patientService;
+        }
+
+        //GET: CasePapers/GetDoctorBySpecialization/specialization
+        [Route("CasePapers/GetDoctorBySpecialization/{specialization}")]
+        public async Task<IActionResult> GetDoctorBySpecialization(int specialization)
+        {
+            try
+            {
+                var doctor = GenericRepository<Doctor>.
+                    Inst
+                    .Set
+                    .Include("Users")
+                    .Where(doc => doc.Specialization == (Specialization) specialization && doc.IsActive != false)
+                    .Select(doc => new { doc.ID, Name = doc.Users.FirstName + " " + doc.Users.LastName })
+                    .ToArray();
+
+                return Json(new { status = 200, count = doctor.Count(), data = doctor });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error: {ex.Source} - {ex.Message}");
+            }
+            return Json(new
+            {
+                status = 400,
+                count = 0,
+                data = new { }
+            });
         }
 
         // GET: CasePapers
@@ -47,10 +86,9 @@ namespace HospitalMgmtSystem.Controllers
         }
 
         // GET: CasePapers/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["DoctorID"] = new SelectList(_context.Doctors, "ID", "ID");
-            ViewData["PatientID"] = new SelectList(_context.Patients, "ID", "MedicalHistory");
+            ViewData["PatientID"] = new SelectList(await _patientService.GetAllPatients(), "ID", "Name");
             return View();
         }
 
@@ -59,7 +97,7 @@ namespace HospitalMgmtSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,DoctorID,PatientID,PatientName,Description,ForSelf,IsSolved,CreatedAt,UpdatedAt,IsActive")] CasePaper casePaper)
+        public async Task<IActionResult> Create([Bind("DoctorID,PatientID,PatientName,Description,ForSelf")] CasePaperRegisterModel casePaper, IFormCollection form)
         {
             if (ModelState.IsValid)
             {
@@ -67,8 +105,9 @@ namespace HospitalMgmtSystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DoctorID"] = new SelectList(_context.Doctors, "ID", "ID", casePaper.DoctorID);
-            ViewData["PatientID"] = new SelectList(_context.Patients, "ID", "MedicalHistory", casePaper.PatientID);
+            ViewData["PatientID"] = new SelectList(await _patientService.GetAllPatients(), "ID", "Name");
+
+
             return View(casePaper);
         }
 
@@ -85,8 +124,8 @@ namespace HospitalMgmtSystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["DoctorID"] = new SelectList(_context.Doctors, "ID", "ID", casePaper.DoctorID);
-            ViewData["PatientID"] = new SelectList(_context.Patients, "ID", "MedicalHistory", casePaper.PatientID);
+            ViewData["PatientID"] = new SelectList(await _patientService.GetAllPatients(), "ID", "Name");
+
             return View(casePaper);
         }
 

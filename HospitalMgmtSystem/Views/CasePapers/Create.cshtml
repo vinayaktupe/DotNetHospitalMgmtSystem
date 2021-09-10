@@ -1,5 +1,4 @@
-﻿@model HospitalMgmtSystem.DAL.Data.Model.CasePaper
-
+﻿@model CasePaperRegisterModel
 @{
     ViewData["Title"] = "Create";
 }
@@ -9,31 +8,61 @@
 <h4>CasePaper</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-12">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="DoctorID" class="control-label"></label>
-                <select asp-for="DoctorID" class ="form-control" asp-items="ViewBag.DoctorID"></select>
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group">
+                        <label asp-for="Specialization" class="control-label"></label>
+                        <select asp-for="Specialization" class="form-control" asp-items="@Html.GetEnumSelectList<Specialization>()">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label asp-for="DoctorID" class="control-label"></label>
+                        <select asp-for="DoctorID" class="form-control">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label asp-for="PatientID" class="control-label"></label>
+                        <select asp-for="PatientID" class="form-control" asp-items="ViewBag.PatientID">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="PatientID" class="control-label"></label>
-                <select asp-for="PatientID" class ="form-control" asp-items="ViewBag.PatientID"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="PatientName" class="control-label"></label>
-                <input asp-for="PatientName" class="form-control" />
-                <span asp-validation-for="PatientName" class="text-danger"></span>
+            <div class="row">
+
+                <div class="col-4">
+                    <div class="form-group">
+                        @*<label asp-for="ForSelf" class="custom-checkbox">
+                                Are you creating case paper for yourself ? <input type="checkbox" checked data-toggle="toggle" id="ForSelf">
+                            </label>
+                            <span asp-validation-for="ForSelf" class="text-danger"></span>*@
+                        <label asp-for="ForSelf" class="custom-checkbox">
+                            Are you creating case paper for yourself ? <input asp-for="ForSelf" class="" data-toggle="toggle" />
+                        </label>
+                        <span asp-validation-for="ForSelf" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group" id="PatientCol">
+                        <label asp-for="PatientName" class="control-label"></label>
+                        <input asp-for="PatientName" class="form-control" />
+                        <span asp-validation-for="PatientName" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <textarea asp-for="Description" class="form-control"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdatedAt" class="control-label"></label>
-                <input asp-for="UpdatedAt" class="form-control" />
-                <span asp-validation-for="UpdatedAt" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -48,4 +77,52 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/js/standalone/selectize.min.js"></script>
+    <script>
+        $("#Specialization").selectize({
+            create: true,
+            sortField: "text",
+        });
+        $("#DoctorID").selectize({
+            create: true,
+            sortField: "text",
+        });
+        $("#PatientID").selectize({
+            create: true,
+            sortField: "text",
+        });
+
+        $("#ForSelf").change((evt) => {
+            if (evt.target.checked) {
+                $("#PatientCol").hide();
+            } else {
+                $("#PatientCol").show();
+            }
+        });
+
+        $("#Specialization").change(async (evt) => {
+            if (evt.target.value >= 0) {
+                await fetch(`/CasePapers/GetDoctorBySpecialization/${evt.target.value}`)
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.count > 0) {
+                            var selectField = $("#DoctorID");
+
+                            result.data.forEach(el => {
+                                var option = document.createElement("option");
+                                option.text = el.Name;
+                                option.value = el.ID;
+
+                                selectField.add(option);
+                            });
+                        }
+                    });
+            }
+        });
+    </script>
+}
+@section Stylesheet{
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.bootstrap4.min.css" rel="stylesheet" />
 }
