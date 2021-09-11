@@ -1,12 +1,11 @@
-﻿using HospitalMgmtSystem.DAL.Data;
-using HospitalMgmtSystem.DAL.Data.Model;
+﻿using HospitalMgmtSystem.DAL.Data.Model;
 using HospitalMgmtSystem.DAL.Repository;
 using HospitalMgmtSystem.Services.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace HospitalMgmtSystem.Services.Services
 {
@@ -17,6 +16,7 @@ namespace HospitalMgmtSystem.Services.Services
         public Task<Doctor> CreateDoctor(Doctor doctor);
         public Task<Doctor> UpdateDoctor(Doctor doctor);
         public Task<bool> DeleteDoctor(int Id);
+        public Task<IEnumerable<Doctor>> GetDoctorByCondition(Func<Doctor, bool> condition);
     }
     public class DoctorService : IDoctorService
     {
@@ -67,6 +67,12 @@ namespace HospitalMgmtSystem.Services.Services
             return new GenericRepository<Doctor>().GetByCondition(doc => doc.ID == Id && doc.IsActive != false).SingleOrDefault();
         }
 
+        public async Task<IEnumerable<Doctor>> GetDoctorByCondition(Func<Doctor, bool> condition)
+        {
+            var res = GenericRepository<Doctor>.Inst.Set.Include(doc=>doc.Users).Where(condition);
+            return res;
+        }
+
         public async Task<Doctor> UpdateDoctor(Doctor doctor)
         {
             doctor.Users.UpdatedAt = DateTime.Now;
@@ -77,5 +83,7 @@ namespace HospitalMgmtSystem.Services.Services
 
             return null;
         }
+
+
     }
 }

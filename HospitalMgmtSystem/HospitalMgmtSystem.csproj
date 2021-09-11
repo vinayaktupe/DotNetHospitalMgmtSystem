@@ -20,5 +20,9 @@
     <ProjectReference Include="..\HospitalMgmtSystem.DAL\HospitalMgmtSystem.DAL.csproj" />
     <ProjectReference Include="..\HospitalMgmtSystem.Services\HospitalMgmtSystem.Services.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Areas\Doctor\Data\" />
+    <Folder Include="Areas\Doctor\Models\" />
+  </ItemGroup>
 
 </Project>
