@@ -16,6 +16,7 @@ namespace HospitalMgmtSystem.Services.Services
         public Task<CasePaper> CreateCasePaper(CasePaper casePaper);
         public Task<CasePaper> UpdateCasePaper(CasePaper casePaper);
         public Task<bool> DeleteCasePaper(int Id);
+        public Task<IEnumerable<CasePaper>> GetCasePaperByCondition(Func<CasePaper, bool> condition);
     }
     public class CasePaperService : ICasePaperService
     {
@@ -93,6 +94,20 @@ namespace HospitalMgmtSystem.Services.Services
             }
 
             return null;
+        }
+
+        public async Task<IEnumerable<CasePaper>> GetCasePaperByCondition(Func<CasePaper, bool> condition)
+        {
+            var res = GenericRepository<CasePaper>
+                .Inst
+                .Set
+                .Include(casePaper => casePaper.Doctors)
+                .Include(casePaper => casePaper.Patients)
+                .Include(casePaper => casePaper.Doctors.Users)
+                .Include(casePaper => casePaper.Patients.Users)
+                .Where(condition);
+
+            return res;
         }
     }
 }
