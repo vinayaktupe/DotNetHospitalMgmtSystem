@@ -70,6 +70,7 @@ namespace HospitalMgmtSystem.Services.Services
 
         public async Task<Patient> UpdatePatient(Patient patient)
         {
+            patient.Users.UpdatedAt = DateTime.Now;
             if (new GenericRepository<Patient>().Update(patient))
             {
                 return patient;

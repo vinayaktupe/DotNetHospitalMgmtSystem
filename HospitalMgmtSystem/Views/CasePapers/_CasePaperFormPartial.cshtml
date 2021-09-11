@@ -1,0 +1,54 @@
+﻿@model CasePaperRegisterModel
+
+
+<div class="row">
+    <div class="col-4">
+        <div class="form-group">
+            <label asp-for="Specialization" class="control-label"></label>
+            <select asp-for="Specialization" class="form-control" asp-items="@Html.GetEnumSelectList<Specialization>()">
+                <option value=""></option>
+            </select>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="form-group">
+            <label asp-for="DoctorID" class="control-label"></label>
+            <select asp-for="DoctorID" class="form-control">
+                <option selected disabled>Select specialization</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="form-group">
+            <label asp-for="PatientID" class="control-label"></label>
+            <select asp-for="PatientID" class="form-control" asp-items="ViewBag.PatientID">
+                <option selected disabled></option>
+            </select>
+        </div>
+    </div>
+</div>
+<div class="row">
+
+    <div class="col-4">
+        <div class="form-group">
+            <label asp-for="ForSelf" class="custom-checkbox">
+                Are you creating case paper for yourself ? <input asp-for="ForSelf" class="" data-toggle="toggle" />
+            </label>
+            <span asp-validation-for="ForSelf" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="form-group" id="PatientCol">
+            <label asp-for="PatientName" class="control-label"></label>
+            <input asp-for="PatientName" class="form-control" required />
+            <span asp-validation-for="PatientName" class="text-danger"></span>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <label asp-for="Description" class="control-label"></label>
+    <textarea asp-for="Description" class="form-control"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+
+

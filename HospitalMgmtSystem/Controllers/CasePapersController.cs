@@ -21,13 +21,15 @@ namespace HospitalMgmtSystem.Controllers
         private readonly ILogger _logger;
         private readonly IDoctorService _doctorService;
         private readonly IPatientService _patientService;
+        private readonly ICasePaperService _casePaperService;
 
-        public CasePapersController(ApplicationDbContext context, ILogger<CasePapersController> logger, IDoctorService doctorService, IPatientService patientService)
+        public CasePapersController(ApplicationDbContext context, ILogger<CasePapersController> logger, IDoctorService doctorService, IPatientService patientService, ICasePaperService casePaperService)
         {
             _context = context;
             this._logger = logger;
             this._doctorService = doctorService;
             this._patientService = patientService;
+            this._casePaperService = casePaperService;
         }
 
         //GET: CasePapers/GetDoctorBySpecialization/specialization
@@ -40,7 +42,7 @@ namespace HospitalMgmtSystem.Controllers
                     Inst
                     .Set
                     .Include("Users")
-                    .Where(doc => doc.Specialization == (Specialization) specialization && doc.IsActive != false)
+                    .Where(doc => doc.Specialization == (Specialization)specialization && doc.IsActive != false)
                     .Select(doc => new { doc.ID, Name = doc.Users.FirstName + " " + doc.Users.LastName })
                     .ToArray();
 
@@ -61,28 +63,33 @@ namespace HospitalMgmtSystem.Controllers
         // GET: CasePapers
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.CasePapers.Include(c => c.Doctors).Include(c => c.Patients);
-            return View(await applicationDbContext.ToListAsync());
+            //var applicationDbContext = _context.CasePapers.Include(c => c.Doctors).Include(c => c.Patients);
+            var list = await _casePaperService.GetAllCasePapers();
+            return View(list);
         }
 
         // GET: CasePapers/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var casePaper = await _casePaperService.GetCasePaperByID(id);
 
-            var casePaper = await _context.CasePapers
-                .Include(c => c.Doctors)
-                .Include(c => c.Patients)
-                .FirstOrDefaultAsync(m => m.ID == id);
             if (casePaper == null)
             {
                 return NotFound();
             }
 
-            return View(casePaper);
+            return View(new CasePaperViewModel()
+            {
+                ID = casePaper.ID,
+                DoctorName = casePaper.Doctors.Users.FirstName + " " + casePaper.Doctors.Users.LastName,
+                SelfName = casePaper.Patients.Users.FirstName + " " + casePaper.Patients.Users.LastName,
+                ForSelf = casePaper.ForSelf,
+                MedicalHistory = casePaper.Patients.MedicalHistory,
+                PatientName = casePaper.PatientName,
+                Description = casePaper.Description,
+                IsSolved = casePaper.IsSolved,
+                Specialization = casePaper.Doctors.Specialization
+            });
         }
 
         // GET: CasePapers/Create
@@ -97,34 +104,55 @@ namespace HospitalMgmtSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DoctorID,PatientID,PatientName,Description,ForSelf")] CasePaperRegisterModel casePaper, IFormCollection form)
+        public async Task<IActionResult> Create([Bind("DoctorID,PatientID,PatientName,Description,ForSelf")] CasePaperRegisterModel receivedCasePaper)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(casePaper);
-                await _context.SaveChangesAsync();
+                CasePaper casePaper = new CasePaper()
+                {
+                    DoctorID = receivedCasePaper.DoctorID,
+                    PatientID = receivedCasePaper.PatientID,
+                    Description = receivedCasePaper.Description,
+                    ForSelf = receivedCasePaper.ForSelf,
+                    PatientName = receivedCasePaper.PatientName
+                };
+
+                var res = _casePaperService.CreateCasePaper(casePaper);
+
+                if (res == null)
+                {
+                    return View(receivedCasePaper);
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["PatientID"] = new SelectList(await _patientService.GetAllPatients(), "ID", "Name");
 
 
-            return View(casePaper);
+            return View(receivedCasePaper);
         }
 
         // GET: CasePapers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id == null)
+            var res = await _casePaperService.GetCasePaperByID(id);
+
+            if (res == null)
             {
                 return NotFound();
             }
 
-            var casePaper = await _context.CasePapers.FindAsync(id);
-            if (casePaper == null)
-            {
-                return NotFound();
-            }
             ViewData["PatientID"] = new SelectList(await _patientService.GetAllPatients(), "ID", "Name");
+            var casePaper = new CasePaperRegisterModel()
+            {
+                ID = res.ID,
+                Specialization = res.Doctors.Specialization,
+                DoctorID = res.Doctors.ID,
+                Description = res.Description,
+                ForSelf = (bool)res.ForSelf,
+                PatientName = res.PatientName,
+                IsSolved = res.IsSolved
+            };
 
             return View(casePaper);
         }
@@ -134,9 +162,9 @@ namespace HospitalMgmtSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,DoctorID,PatientID,PatientName,Description,ForSelf,IsSolved,CreatedAt,UpdatedAt,IsActive")] CasePaper casePaper)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Specialization,DoctorID,PatientID,PatientName,Description,ForSelf")] CasePaperRegisterModel receivedCasePaper)
         {
-            if (id != casePaper.ID)
+            if (id != receivedCasePaper.ID)
             {
                 return NotFound();
             }
@@ -145,12 +173,19 @@ namespace HospitalMgmtSystem.Controllers
             {
                 try
                 {
-                    _context.Update(casePaper);
-                    await _context.SaveChangesAsync();
+                    CasePaper casePaper = await _casePaperService.GetCasePaperByID(id);
+
+                    casePaper.DoctorID = receivedCasePaper.DoctorID;
+                    casePaper.PatientID = receivedCasePaper.PatientID;
+                    casePaper.Description = receivedCasePaper.Description;
+                    casePaper.ForSelf = receivedCasePaper.ForSelf;
+                    casePaper.PatientName = receivedCasePaper.PatientName;
+
+                    var res = _casePaperService.UpdateCasePaper(casePaper);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CasePaperExists(casePaper.ID))
+                    if (!CasePaperExists(receivedCasePaper.ID))
                     {
                         return NotFound();
                     }
@@ -161,29 +196,34 @@ namespace HospitalMgmtSystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DoctorID"] = new SelectList(_context.Doctors, "ID", "ID", casePaper.DoctorID);
-            ViewData["PatientID"] = new SelectList(_context.Patients, "ID", "MedicalHistory", casePaper.PatientID);
-            return View(casePaper);
+            ViewData["DoctorID"] = new SelectList(_context.Doctors, "ID", "ID", receivedCasePaper.DoctorID);
+            ViewData["PatientID"] = new SelectList(_context.Patients, "ID", "MedicalHistory", receivedCasePaper.PatientID);
+            return View(receivedCasePaper);
         }
 
         // GET: CasePapers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var casePaper = await _casePaperService.GetCasePaperByID(id);
 
-            var casePaper = await _context.CasePapers
-                .Include(c => c.Doctors)
-                .Include(c => c.Patients)
-                .FirstOrDefaultAsync(m => m.ID == id);
             if (casePaper == null)
             {
                 return NotFound();
             }
 
-            return View(casePaper);
+
+            return View(new CasePaperViewModel()
+            {
+                ID = casePaper.ID,
+                DoctorName = casePaper.Doctors.Users.FirstName + " " + casePaper.Doctors.Users.LastName,
+                SelfName = casePaper.Patients.Users.FirstName + " " + casePaper.Patients.Users.LastName,
+                ForSelf = casePaper.ForSelf,
+                MedicalHistory = casePaper.Patients.MedicalHistory,
+                PatientName = casePaper.PatientName,
+                Description = casePaper.Description,
+                IsSolved = casePaper.IsSolved,
+                Specialization = casePaper.Doctors.Specialization
+            });
         }
 
         // POST: CasePapers/Delete/5
@@ -191,9 +231,11 @@ namespace HospitalMgmtSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var casePaper = await _context.CasePapers.FindAsync(id);
-            _context.CasePapers.Remove(casePaper);
-            await _context.SaveChangesAsync();
+            var casePaper = await _casePaperService.GetCasePaperByID(id);
+
+            casePaper.IsActive = false;
+            await _casePaperService.UpdateCasePaper(casePaper);
+
             return RedirectToAction(nameof(Index));
         }
 

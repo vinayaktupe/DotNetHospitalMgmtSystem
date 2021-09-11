@@ -1,4 +1,4 @@
-﻿@model IEnumerable<HospitalMgmtSystem.DAL.Data.Model.CasePaper>
+﻿@model IEnumerable<CasePaperViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -13,71 +13,66 @@
     <thead>
         <tr>
             <th>
+                @Html.DisplayNameFor(model => model.ID)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.PatientName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @Html.DisplayNameFor(model => model.DoctorName)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.ForSelf)
+                @Html.DisplayNameFor(model => model.Specialization)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.IsSolved)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsActive)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Doctors)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Patients)
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.PatientName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ForSelf)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsSolved)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsActive)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Doctors.ID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Patients.MedicalHistory)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ID)
+                </td>
+                <td>
+                    @{
+                        if (item.ForSelf == true)
+                        {
+                            @Html.DisplayFor(modelItem => item.SelfName)
+
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => item.PatientName)
+
+                        }
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DoctorName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Specialization)
+                </td>
+                @{
+                    if (item.IsSolved == true)
+                    {
+                        <td>Yes</td>
+                    }
+                    else
+                    {
+                        <td>No</td>
+                    }
+                }
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

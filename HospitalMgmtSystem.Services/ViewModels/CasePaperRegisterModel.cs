@@ -8,18 +8,19 @@ namespace HospitalMgmtSystem.Services.ViewModels
 {
     public class CasePaperRegisterModel
     {
-        [Required]
+        public int ID { get; set; }
+        [Required(ErrorMessage ="Please Select Doctor")]
         public int DoctorID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Please Select Patient")]
         public int PatientID { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="Please Select Specialization")]
         public Specialization Specialization { get; set; }
 
         public string PatientName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage ="Casepaper must have description")]
         [DataType(DataType.MultilineText)]
         public string Description { get; set; }
 
