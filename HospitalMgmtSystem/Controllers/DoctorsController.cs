@@ -1,6 +1,7 @@
 ﻿using HospitalMgmtSystem.DAL.Data.Model;
 using HospitalMgmtSystem.Services.Services;
 using HospitalMgmtSystem.Services.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace HospitalMgmtSystem.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class DoctorsController : Controller
     {
         private readonly ILogger<UserDoctorRegisterModel> _logger;

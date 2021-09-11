@@ -12,9 +12,11 @@ using HospitalMgmtSystem.Services.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using HospitalMgmtSystem.DAL.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HospitalMgmtSystem.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class CasePapersController : Controller
     {
         private readonly ApplicationDbContext _context;

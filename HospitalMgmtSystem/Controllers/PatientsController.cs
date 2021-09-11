@@ -10,9 +10,11 @@ using HospitalMgmtSystem.DAL.Data.Model;
 using HospitalMgmtSystem.Services.ViewModels;
 using Microsoft.Extensions.Logging;
 using HospitalMgmtSystem.Services.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HospitalMgmtSystem.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class PatientsController : Controller
     {
         private readonly ILogger<UserPatientRegisterModel> _logger;

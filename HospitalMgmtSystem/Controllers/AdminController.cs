@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HospitalMgmtSystem.Controllers
 {
-    [Authorize]
+    [Authorize(Roles ="Admin")]
     public class AdminController : Controller
     {
         private readonly RoleManager<IdentityRole> roleManager;

@@ -1,8 +1,5 @@
 ﻿using HospitalMgmtSystem.DAL.Data.Model;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace HospitalMgmtSystem.Services.ViewModels
 {
@@ -10,7 +7,7 @@ namespace HospitalMgmtSystem.Services.ViewModels
     {
         public int DocId { get; set; }
 
-        [Display(Name ="Case ID")]
+        [Display(Name = "Case ID")]
         public int ID { get; set; }
         [Display(Name = "Doctor Name")]
         public string DoctorName { get; set; }
