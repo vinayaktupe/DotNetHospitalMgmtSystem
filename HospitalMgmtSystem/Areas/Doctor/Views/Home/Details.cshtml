@@ -63,30 +63,234 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+
 <div>
-    <div class="row mt-5 text-center">
+    <div class="row mt-5" id="FileBtns">
         <div class="col-6">
             <div class="row">
                 <div class="col-6">
-                    <button id="CreatePrescription" class="btn btn-primary">Create Prescription</button>
+                    <button id="create" class="btn btn-primary" data-caseid="@Html.DisplayFor(model => model.ID)">
+                        Create File
+                    </button>
                 </div>
                 <div class="col-6">
-                    <button id="ViewPrescription" class="btn btn-outline-primary">View Prescription</button>
-                </div>
-            </div>
-        </div>
-        <div class="col-6">
-            <div class="row">
-                <div class="col-6">
-                    <button id="CreateReport" class="btn btn-secondary">Create Report</button>
-                </div>
-                <div class="col-6">
-                    <button id="ViewReport" class="btn btn-outline-secondary">View Report</button>
+                    <button id="view" class="btn btn-outline-primary" data-caseid="@Html.DisplayFor(model => model.ID)">
+                        View File
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div id="prescription"></div>
-<div id="report"></div>
+<div id="showList" class="mt-3 col-12"></div>
+<div id="file" class="mt-3 col-12"></div>
+<div id="createForm" class="mt-3 col-12"></div>
+
+@section Scripts{
+
+    @{await Html.RenderPartialAsync("~/Views/Shared/_ValidationScriptsPartial.cshtml");}
+
+    <script>
+        const showList = document.querySelector("#showList");
+        const report = document.querySelector("#file");
+        var counter = 0;
+
+        $("#FileBtns").on("click", (evt) => {
+
+            if (evt.target.id != null && evt.target.classList.contains("btn")) {
+
+                const id = evt.target.id;
+
+                if (id.match("create")) {
+                    createFormRender(evt.target.dataset["caseid"]);
+
+                } else if (id.match("view")) {
+                    const type = id.substr(4);
+                    renderViewTable(evt.target.dataset["caseid"]);
+                }
+            }
+        });
+
+        //CREATE FUNCTIONALITY
+        const createFormRender = (id) => {
+            try {
+                $.ajax({
+                    url: `/CaseFiles/Create/${id}`,
+                    method: "GET",
+                    success: (res) => {
+                        $("#createForm").html(res);
+                        addFormListener();
+                    }
+                });
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        const addField = () => {
+            ++counter;
+
+            const markup = `
+                                <div id="fields_${counter}">
+                                    <div class="row">
+                                        <div class="form-group col-4">
+                                            <input type="text" class="form-control" name="parameter" placeholder="Parameter" required>
+                                        </div>
+                                        <div class="form-group col-4">
+                                            <input type="text" class="form-control" name="observed" placeholder="Observed" required>
+                                        </div>
+                                        <div class="form-group col-4">
+                                            <input type="text" class="form-control" name="description" placeholder="Description" required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-1">
+                                            <button class="btn btn-danger" type="button" name="delete_${counter}">x</button>
+                                        </div>
+                                    </div>
+                                </div>`;
+
+            $("#fields").append(markup);
+        }
+
+        const removeField = (id) => {
+            const field = document.querySelector(`#fields_${id}`);
+            if (field != null) {
+                field.parentNode.removeChild(field);
+            }
+        }
+
+        const addFormListener = () => {
+            $("#fields").click((evt) => {
+                if (evt.target.id != null && evt.target.name != undefined) {
+                    window.e = evt;
+                    if (evt.target.name.includes("add")) {
+                        addField();
+                    } else if (evt.target.name.includes("delete_")) {
+                        removeField(evt.target.name.split("_")[1]);
+                    }
+                }
+            });
+
+            $("#FileForm").submit(evt => {
+                evt.preventDefault();
+                var fileType = 0 + document.querySelector("#FileType").value;
+                if (fileType >= 0) {
+                    const result = getFieldsValue();
+                    var caseFileForm = new FormData();
+                    caseFileForm.append("CaseID", $("#CaseID").val());
+                    caseFileForm.append("FileType", $("#FileType").val());
+                    caseFileForm.append("Name", $("#Name").val());
+                    caseFileForm.append("Fields", result);
+                    caseFileForm.append("__RequestVerificationToken", $("[name=__RequestVerificationToken]").val());
+
+                    $.ajax({
+                        url: "/CaseFiles/Create",
+                        method: "POST",
+
+                        contentType: false,
+                        processData: false,
+                        cache: false,
+
+                        data: caseFileForm,
+                        //data: {
+                        //    CaseID: $("#CaseID").val(),
+                        //    FileType: $("#FileType").val(),
+                        //    Fields: result,
+                        //    __RequestVerificationToken: $("[name=__RequestVerificationToken]").val()
+                        //},
+
+                        success: (res) => {
+                            console.log("Success");
+                            renderViewTable($("#CaseID").val());
+                            document.querySelector("#createForm").innerHTML = "";
+                        },
+
+                        error: (err) => {
+                            console.log("Error: ", err);
+                            window.err = err;
+                        }
+                    });
+                }
+            });
+        }
+
+        const getFieldsValue = () => {
+            const fields = document.querySelector("#fields");
+            var result = "";
+
+            Array.from(fields.children)
+                .forEach(el => {
+                    result += document.querySelector(`#${el.id} > div > div > [name=parameter]`).value + ",";
+                    result += document.querySelector(`#${el.id} > div > div > [name=observed]`).value + ",";
+                    result += document.querySelector(`#${el.id} > div > div > [name=description]`).value + ";";
+                });
+
+            return result;
+        }
+
+        //VIEW FUNCTIONALITY
+        const renderViewTable = (id) => {
+            try {
+                var res;
+                $.ajax({
+                    url: `/CaseFiles/Details/${id}`,
+                    type: "GET",
+                    success: (res) => {
+                        renderTableSkeleton();
+                        renderTableRow(res.data);
+                    },
+                    error: (err) => {
+                        console.log(err);
+                    }
+                })
+            } catch (ex) {
+                console.log(ex);
+            }
+        }
+        const renderTableRow = (data) => {
+            data.forEach(el => {
+                const rowMarkup = `
+                    <tr>
+                    <td>${el.id}</td>
+                    <td>${el.name}</td>
+                    <td>${el.fileType==1?"Prescription":"Report"}</td>
+                    <td><a href="# ${el.id}" class="btn btn-warning">Print</a></td>
+                    `;
+                document.querySelector("#tableBody").insertAdjacentHTML("beforeend", rowMarkup);
+            })
+        }
+
+        const renderTableSkeleton = () => {
+            const markup = `
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>File ID</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>File ID</th>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>`;
+
+            showList.innerHTML = "";
+            showList.insertAdjacentHTML("afterbegin", markup);
+        }
+    </script>
+}
+
+
+
+

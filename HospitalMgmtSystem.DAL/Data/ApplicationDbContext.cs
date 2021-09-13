@@ -39,6 +39,11 @@ namespace HospitalMgmtSystem.DAL.Data
             builder.Entity<CasePaper>().Property(paper => paper.IsActive).HasDefaultValue(true);
             builder.Entity<CasePaper>().Property(paper => paper.CreatedAt).HasDefaultValue(DateTime.Now);
 
+            //CaseFile MODEL DESIGN
+            builder.Entity<CaseFile>().Property(file => file.CreatedAt).HasDefaultValue(DateTime.Now);
+            builder.Entity<CaseFile>().Property(file => file.IsActive).HasDefaultValue(true);
+
+
             base.OnModelCreating(builder);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

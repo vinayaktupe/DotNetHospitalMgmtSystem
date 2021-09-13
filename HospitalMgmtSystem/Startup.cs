@@ -52,6 +52,7 @@ namespace HospitalMgmtSystem
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPatientService, PatientService>();
             services.AddScoped<ICasePaperService, CasePaperService>();
+            services.AddScoped<ICaseFileService, CaseFileService>();
 
             services.AddControllersWithViews();
 

@@ -1,0 +1,55 @@
+﻿@model HospitalMgmtSystem.DAL.Data.Model.CaseFile
+<h1>Create</h1>
+
+<h4>CaseFile</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form id="FileForm" method="post" novalidate="novalidate">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="CaseID" value="@ViewData["CaseID"]" />
+            <div class="row">
+                <div class="form-group col-6">
+                    <label asp-for="Name" class="control-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group col-6">
+                    <label asp-for="FileType" class="control-label"></label>
+                    <select asp-for="FileType" class="form-control" asp-items="@Html.GetEnumSelectList<FileType>()" required>
+                        <option selected disabled value="-1">Please select File type</option>
+                    </select>
+                    <span asp-validation-for="FileType" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fields" class="control-label"></label>
+                <span asp-validation-for="Fields" class="text-danger"></span>
+                <div id="fields">
+                    <div id="fields_0">
+                        <div class="row">
+                            <div class="form-group col-4">
+                                <input type="text" class="form-control" name="parameter" placeholder="Parameter" required>
+                            </div>
+                            <div class="form-group col-4">
+                                <input type="text" class="form-control" name="observed" placeholder="Observed" required>
+                            </div>
+                            <div class="form-group col-4">
+                                <input type="text" class="form-control" name="description" placeholder="Description" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-1">
+                                <button class="btn btn-success" type="button" name="add">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+
+            </div>
+        </form>
+    </div>
+</div>

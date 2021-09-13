@@ -4,14 +4,16 @@ using HospitalMgmtSystem.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace HospitalMgmtSystem.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210913050803_CaseFileTableUpdate")]
+    partial class CaseFileTableUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +41,7 @@ namespace HospitalMgmtSystem.DAL.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2021, 9, 13, 15, 13, 29, 713, DateTimeKind.Local).AddTicks(9177));
+                        .HasDefaultValue(new DateTime(2021, 9, 13, 10, 38, 2, 888, DateTimeKind.Local).AddTicks(6960));
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(256)")
@@ -138,7 +140,7 @@ namespace HospitalMgmtSystem.DAL.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2021, 9, 13, 15, 13, 29, 721, DateTimeKind.Local).AddTicks(4678));
+                        .HasDefaultValue(new DateTime(2021, 9, 13, 10, 38, 2, 893, DateTimeKind.Local).AddTicks(7791));
 
                     b.Property<string>("Fields")
                         .HasColumnType("nvarchar(max)");
@@ -150,10 +152,6 @@ namespace HospitalMgmtSystem.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -175,7 +173,7 @@ namespace HospitalMgmtSystem.DAL.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2021, 9, 13, 15, 13, 29, 721, DateTimeKind.Local).AddTicks(3117));
+                        .HasDefaultValue(new DateTime(2021, 9, 13, 10, 38, 2, 893, DateTimeKind.Local).AddTicks(6631));
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
