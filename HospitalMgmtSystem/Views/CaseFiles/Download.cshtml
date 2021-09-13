@@ -1,0 +1,40 @@
+﻿@model CaseFile
+
+@{
+    var type = Model.FileType == FileType.Prescription ? "Prescription" : "Report";
+    var paramater = Model.FileType == FileType.Prescription ? "Medicine" : "Paramater";
+    var observed = Model.FileType == FileType.Prescription ? "Times" : "Observation";
+    var description = Model.FileType == FileType.Prescription ? "Quantity" : "Description";
+
+    var fields = Model.Fields.Split(";");
+}
+
+<h4>@type</h4>
+<div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>@paramater</th>
+                <th>@observed</th>
+                <th>@description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                for (int i = 0; i < fields.Length - 1; i++)
+                {
+                    var subField = fields[i].Split(",");
+                    var disp = i + 1;
+                    <tr>
+                        <td>@disp</td>
+                        <td>@subField[0]</td>
+                        <td>@subField[1]</td>
+                        <td>@subField[2]</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+

@@ -68,16 +68,30 @@
     <div class="row mt-5" id="FileBtns">
         <div class="col-6">
             <div class="row">
-                <div class="col-6">
-                    <button id="create" class="btn btn-primary" data-caseid="@Html.DisplayFor(model => model.ID)">
-                        Create File
-                    </button>
-                </div>
-                <div class="col-6">
+                @if (Model.IsSolved == false)
+                {
+                    <div class="col-4">
+                        <button id="create" class="btn btn-primary" data-caseid="@Html.DisplayFor(model => model.ID)">
+                            Create File
+                        </button>
+                    </div>
+                }
+                <div class="col-4">
                     <button id="view" class="btn btn-outline-primary" data-caseid="@Html.DisplayFor(model => model.ID)">
                         View File
                     </button>
                 </div>
+                @{
+                    if (Model.IsSolved == false)
+                    {
+                        <div class="col-4">
+                            <button id="solved" class="btn btn-warning" data-caseid="@Html.DisplayFor(model => model.ID)">
+                                Case Solved
+                            </button>
+                        </div>
+                    }
+                }
+
             </div>
         </div>
     </div>
@@ -109,6 +123,17 @@
                     const type = id.substr(4);
                     renderViewTable(evt.target.dataset["caseid"]);
                 }
+                else if (evt.target.id == "solved") {
+                    $.ajax({
+                        url: `/CasePapers/Solved/${evt.target.dataset["caseid"]}`,
+                        success: (data) => {
+                            console.log("Success")
+                        },
+                        error: (error) => {
+                            console.log("Error: ", error)
+                        }
+                    })
+                }
             }
         });
 
@@ -132,24 +157,24 @@
             ++counter;
 
             const markup = `
-                                <div id="fields_${counter}">
-                                    <div class="row">
-                                        <div class="form-group col-4">
-                                            <input type="text" class="form-control" name="parameter" placeholder="Parameter" required>
-                                        </div>
-                                        <div class="form-group col-4">
-                                            <input type="text" class="form-control" name="observed" placeholder="Observed" required>
-                                        </div>
-                                        <div class="form-group col-4">
-                                            <input type="text" class="form-control" name="description" placeholder="Description" required>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="form-group col-1">
-                                            <button class="btn btn-danger" type="button" name="delete_${counter}">x</button>
-                                        </div>
-                                    </div>
-                                </div>`;
+                                        <div id="fields_${counter}">
+                                            <div class="row">
+                                                <div class="form-group col-4">
+                                                    <input type="text" class="form-control" name="parameter" placeholder="Parameter" required>
+                                                </div>
+                                                <div class="form-group col-4">
+                                                    <input type="text" class="form-control" name="observed" placeholder="Observed" required>
+                                                </div>
+                                                <div class="form-group col-4">
+                                                    <input type="text" class="form-control" name="description" placeholder="Description" required>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group col-1">
+                                                    <button class="btn btn-danger" type="button" name="delete_${counter}">x</button>
+                                                </div>
+                                            </div>
+                                        </div>`;
 
             $("#fields").append(markup);
         }
@@ -252,41 +277,50 @@
         const renderTableRow = (data) => {
             data.forEach(el => {
                 const rowMarkup = `
-                    <tr>
-                    <td>${el.id}</td>
-                    <td>${el.name}</td>
-                    <td>${el.fileType==1?"Prescription":"Report"}</td>
-                    <td><a href="# ${el.id}" class="btn btn-warning">Print</a></td>
-                    `;
+                            <tr>
+                            <td>${el.id}</td>
+                            <td>${el.name}</td>
+                            <td>${el.fileType == 1 ? "Prescription" : "Report"}</td>
+                            <td><button class="btn btn-warning" onClick="download(${el.id})">Print</button></td>
+                            `;
                 document.querySelector("#tableBody").insertAdjacentHTML("beforeend", rowMarkup);
             })
         }
 
         const renderTableSkeleton = () => {
             const markup = `
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>File ID</th>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <th>File ID</th>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th></th>
-                            </tr>
-                        </tfoot>
-                    </table>`;
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>File ID</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>File ID</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>`;
 
             showList.innerHTML = "";
             showList.insertAdjacentHTML("afterbegin", markup);
+        }
+
+        const download = (id) => {
+            $.ajax({
+                url: `/CaseFiles/Download/${id}`,
+                success: (res) => {
+                    $("#file").html(res);
+                }
+            })
         }
     </script>
 }

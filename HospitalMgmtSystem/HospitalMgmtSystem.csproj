@@ -23,6 +23,8 @@
   <ItemGroup>
     <Folder Include="Areas\Doctor\Data\" />
     <Folder Include="Areas\Doctor\Models\" />
+    <Folder Include="Areas\Patient\Data\" />
+    <Folder Include="Areas\Patient\Models\" />
   </ItemGroup>
 
 </Project>

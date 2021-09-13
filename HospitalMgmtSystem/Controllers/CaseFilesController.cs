@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HospitalMgmtSystem.Controllers
 {
+    [Authorize]
     public class CaseFilesController : Controller
     {
         private readonly ILogger<CaseFilesController> _logger;
@@ -126,6 +127,18 @@ namespace HospitalMgmtSystem.Controllers
 
             return Ok();
         }
+
+        public async Task<IActionResult> Download(int id) {
+            var res = await _caseFileService.GetCaseFileByID(id);
+            if (res==null)
+            {
+                return BadRequest();
+            }
+
+            return PartialView(res);
+        }
+
+
 
         // GET: CaseFiles/Edit/5
         //public async Task<IActionResult> Edit(int? id)

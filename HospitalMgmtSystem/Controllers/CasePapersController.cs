@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HospitalMgmtSystem.Controllers
 {
-    [Authorize(Roles = "Admin")]
     public class CasePapersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -34,6 +33,7 @@ namespace HospitalMgmtSystem.Controllers
             this._casePaperService = casePaperService;
         }
 
+        [Authorize(Roles = "Admin")]
         //GET: CasePapers/GetDoctorBySpecialization/specialization
         [Route("CasePapers/GetDoctorBySpecialization/{specialization}")]
         public async Task<IActionResult> GetDoctorBySpecialization(int specialization)
@@ -62,6 +62,7 @@ namespace HospitalMgmtSystem.Controllers
             });
         }
 
+        [Authorize(Roles = "Admin")]
         // GET: CasePapers
         public async Task<IActionResult> Index()
         {
@@ -70,6 +71,7 @@ namespace HospitalMgmtSystem.Controllers
             return View(list);
         }
 
+        [Authorize(Roles = "Admin,Doctor,Patient")]
         // GET: CasePapers/Details/5
         public async Task<IActionResult> Details(int id)
         {
@@ -94,6 +96,7 @@ namespace HospitalMgmtSystem.Controllers
             });
         }
 
+        [Authorize(Roles = "Admin")]
         // GET: CasePapers/Create
         public async Task<IActionResult> Create()
         {
@@ -101,11 +104,27 @@ namespace HospitalMgmtSystem.Controllers
             return View();
         }
 
+        [Authorize(Roles = "Doctor")]
+        public async Task<IActionResult> Solved(int id)
+        {
+            var res = await _casePaperService.GetCasePaperByID(id);
+            if (res == null)
+            {
+                return NotFound();
+            }
+            res.IsSolved = true;
+            await _casePaperService.UpdateCasePaper(res);
+
+            return Ok();
+        }
+
+
         // POST: CasePapers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("DoctorID,PatientID,PatientName,Description,ForSelf")] CasePaperRegisterModel receivedCasePaper)
         {
             if (ModelState.IsValid)
@@ -135,6 +154,7 @@ namespace HospitalMgmtSystem.Controllers
         }
 
         // GET: CasePapers/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var res = await _casePaperService.GetCasePaperByID(id);
@@ -164,6 +184,7 @@ namespace HospitalMgmtSystem.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Specialization,DoctorID,PatientID,PatientName,Description,ForSelf")] CasePaperRegisterModel receivedCasePaper)
         {
             if (id != receivedCasePaper.ID)
@@ -204,6 +225,7 @@ namespace HospitalMgmtSystem.Controllers
         }
 
         // GET: CasePapers/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var casePaper = await _casePaperService.GetCasePaperByID(id);
@@ -231,6 +253,7 @@ namespace HospitalMgmtSystem.Controllers
         // POST: CasePapers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var casePaper = await _casePaperService.GetCasePaperByID(id);
@@ -241,6 +264,7 @@ namespace HospitalMgmtSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Admin")]
         private bool CasePaperExists(int id)
         {
             return _context.CasePapers.Any(e => e.ID == id);

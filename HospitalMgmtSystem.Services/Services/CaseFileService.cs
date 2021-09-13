@@ -11,6 +11,7 @@ namespace HospitalMgmtSystem.Services.Services
 {
     public interface ICaseFileService
     {
+        public Task<CaseFile> GetCaseFileByID(int Id);
         public Task<IEnumerable<CaseFile>> GetCaseFileByCaseID(int Id);
         public Task<CaseFile> CreateCaseFile(CaseFile caseFile);
         public Task<CaseFile> UpdateCaseFile(CaseFile caseFile);
@@ -55,6 +56,11 @@ namespace HospitalMgmtSystem.Services.Services
         public async Task<IEnumerable<CaseFile>> GetCaseFileByCondition(Func<CaseFile, bool> condition)
         {
             return _context.Where(condition);
+        }
+
+        public Task<CaseFile> GetCaseFileByID(int Id)
+        {
+            return _context.FirstOrDefaultAsync(file => file.ID == Id && file.IsActive == true);
         }
 
         public async Task<CaseFile> UpdateCaseFile(CaseFile caseFile)

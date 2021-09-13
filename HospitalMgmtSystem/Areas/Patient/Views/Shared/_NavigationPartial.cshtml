@@ -29,10 +29,10 @@
         else if (User.IsInRole("Patient"))
         {
             <li class="nav-item">
-                <a class="nav-link text-dark" asp-area="Patient" asp-controller="Home" asp-action="Index">Active Appoinments</a>
+                <a class="nav-link text-dark" asp-controller="Doctors" asp-action="Index">Active Appoinments</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-dark" asp-area="Patient" asp-controller="Home" asp-action="PastAppoinments">Past Appoinments</a>
+                <a class="nav-link text-dark" asp-controller="Patients" asp-action="Index">Past Appoinments</a>
             </li>
         }
     }
