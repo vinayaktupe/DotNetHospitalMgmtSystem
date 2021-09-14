@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HospitalMgmtSystem.Services.ViewModels;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace HospitalMgmtSystem.Services.Services
 {
@@ -65,12 +65,19 @@ namespace HospitalMgmtSystem.Services.Services
 
         public async Task<Patient> GetPatientByID(int Id)
         {
-            return new GenericRepository<Patient>().GetByCondition(patient => patient.ID == Id && patient.IsActive != false).SingleOrDefault();
+            return GenericRepository<Patient>
+                .Inst
+                .Set
+                .Include(patient => patient.Users)
+                .Where(patient => patient.ID == Id && patient.IsActive != false).SingleOrDefault();
         }
 
         public async Task<Patient> UpdatePatient(Patient patient)
         {
             patient.Users.UpdatedAt = DateTime.Now;
+            patient.Users.IsActive = true;
+            patient.IsActive = true;
+
             if (new GenericRepository<Patient>().Update(patient))
             {
                 return patient;

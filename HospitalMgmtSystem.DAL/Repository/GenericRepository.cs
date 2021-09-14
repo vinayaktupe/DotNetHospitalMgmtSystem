@@ -55,7 +55,9 @@ namespace HospitalMgmtSystem.DAL.Repository
 
         public IEnumerable<T> GetByCondition(Func<T, bool> condition)
         {
-            return Set.Where(condition);
+            return Set
+                .Include("Users")
+                .Where(condition);
         }
 
         public bool Create(T model)

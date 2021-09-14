@@ -64,7 +64,11 @@ namespace HospitalMgmtSystem.Services.Services
 
         public async Task<Doctor> GetDoctorByID(int Id)
         {
-            return new GenericRepository<Doctor>().GetByCondition(doc => doc.ID == Id && doc.IsActive != false).SingleOrDefault();
+            return GenericRepository<Doctor>
+                .Inst
+                .Set
+                .Include(doc=>doc.Users)
+                .Where(doc => doc.ID == Id && doc.IsActive != false).SingleOrDefault();
         }
 
         public async Task<IEnumerable<Doctor>> GetDoctorByCondition(Func<Doctor, bool> condition)
@@ -76,6 +80,8 @@ namespace HospitalMgmtSystem.Services.Services
         public async Task<Doctor> UpdateDoctor(Doctor doctor)
         {
             doctor.Users.UpdatedAt = DateTime.Now;
+            doctor.IsActive = true;
+            doctor.Users.IsActive = true;
             if (new GenericRepository<Doctor>().Update(doctor))
             {
                 return doctor;
