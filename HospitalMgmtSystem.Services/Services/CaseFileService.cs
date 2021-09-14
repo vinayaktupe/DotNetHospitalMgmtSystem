@@ -30,8 +30,8 @@ namespace HospitalMgmtSystem.Services.Services
                 .Include(file => file.CasePapers)
                 .Include(file => file.CasePapers.Doctors)
                 .Include(file => file.CasePapers.Patients);
-                //.Include(file => file.CasePapers.Doctors.Users)
-                //.Include(file => file.CasePapers.Patients.Users);
+            //.Include(file => file.CasePapers.Doctors.Users)
+            //.Include(file => file.CasePapers.Patients.Users);
         }
         public async Task<CaseFile> CreateCaseFile(CaseFile caseFile)
         {
@@ -45,12 +45,18 @@ namespace HospitalMgmtSystem.Services.Services
 
         public async Task<bool> DeleteCaseFile(int Id)
         {
-            throw new NotImplementedException();
+            var caseFile = await GetCaseFileByID(Id);
+            caseFile.IsActive = false;
+            if (new GenericRepository<CaseFile>().Update(caseFile))
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task<IEnumerable<CaseFile>> GetCaseFileByCaseID(int Id)
         {
-            return _context.Where(file => file.CasePapers.ID == Id).AsEnumerable();
+            return _context.Where(file => file.CasePapers.ID == Id && file.IsActive == true).AsEnumerable();
         }
 
         public async Task<IEnumerable<CaseFile>> GetCaseFileByCondition(Func<CaseFile, bool> condition)
