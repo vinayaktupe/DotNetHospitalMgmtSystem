@@ -9,6 +9,9 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<partial name="~/Views/Shared/_SearchBar.cshtml" />
+
 <table class="table">
     <thead>
         <tr>
@@ -24,24 +27,68 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Number)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
-        </tr>
-}
+    <tbody id="DataTable">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Number)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+@section Scripts{
+    <script>
+        $("#searchForm").submit(evt => {
+            evt.preventDefault();
+            if ($("#key").val() != "") {
+                const key = $("#key").val();
+                $.ajax({
+                    url: `/Patients/Search/${encodeURI(key)}`,
+                    success: (response) => {
+                        renderData(response.data);
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+            }
+        });
+
+        const renderData = (result) => {
+            $("#DataTable").html("");
+
+            result.forEach(data => {
+                var markup = `
+                <tr>
+                    <td>#ID</td>
+                    <td>#Name</td>
+                    <td>#Number</td>
+                    <td>
+                        <a href="/Patients/Edit/#ID" >Edit</a> |
+                        <a href="/Patients/Details/#ID" >Details</a> |
+                        <a href="/Patients/Delete/#ID" >Delete</a>
+                    </td>
+                </tr>`
+                    .replaceAll("#ID", data.id)
+                    .replace("#Name", data.name)
+                    .replace("#Number", data.number);
+
+                $("#DataTable").append(markup);
+            });
+
+        }
+    </script>
+}

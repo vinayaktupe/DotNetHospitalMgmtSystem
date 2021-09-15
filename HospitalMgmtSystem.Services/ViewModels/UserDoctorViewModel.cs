@@ -14,7 +14,7 @@ namespace HospitalMgmtSystem.Services.ViewModels
         public string Number { get; set; }
         public string Address { get; set; }
         public string Email { get; set; }
-        public Specialization Specialization { get; set; }
+        public string Specialization { get; set; }
 
         [Display(Name ="Years of Experience")]
         public int YearsOfExperience { get; set; }

@@ -115,7 +115,7 @@ namespace HospitalMgmtSystem.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var res = await _patientService.GetPatientByID(id);
-            
+
             if (res == null)
             {
                 return NotFound();
@@ -227,6 +227,29 @@ namespace HospitalMgmtSystem.Controllers
         private bool PatientExists(int id)
         {
             return _patientService.GetPatientByID(id) != null;
+        }
+
+        public async Task<IActionResult> Search(string id)
+        {
+            if (id == null)
+            {
+                return BadRequest(new { status = "fail" });
+            }
+
+            var filteredResult = await _patientService.Search(id);
+
+
+            if (filteredResult == null)
+            {
+                return BadRequest(new { status = "fail" });
+            }
+
+            return Ok(new
+            {
+                status = "success",
+                results = filteredResult.Count(),
+                data = filteredResult
+            });
         }
     }
 }

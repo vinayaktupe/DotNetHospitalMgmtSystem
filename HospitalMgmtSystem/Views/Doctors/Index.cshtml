@@ -9,6 +9,9 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<partial name="~/Views/Shared/_SearchBar.cshtml" />
+
 <table class="table">
     <thead>
         <tr>
@@ -30,7 +33,7 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="DataTable">
         @foreach (var item in Model)
         {
             <tr>
@@ -58,3 +61,50 @@
         }
     </tbody>
 </table>
+@section Scripts{
+
+    <script>
+        $("#searchForm").submit(evt => {
+            evt.preventDefault();
+            if ($("#key").val() != "") {
+                const key = $("#key").val();
+                $.ajax({
+                    url: `/Doctors/Search/${encodeURI(key)}`,
+                    success: (response) => {
+                        renderData(response.data);
+                    },
+                    error: (error) => {
+                        console.log(error);
+                    }
+                });
+            }
+        });
+
+        const renderData = (result) => {
+            $("#DataTable").html("");
+
+            result.forEach(data => {
+                var markup = `
+                    <tr>
+                        <td>#ID</td>
+                        <td>#Name</td>
+                        <td>#Specialization</td>
+                        <td>#YearsOfExperience</td>
+                        <td>#Number</td>
+                        <td>
+                            <a href="/Doctors/Edit/#ID">Edit</a> |
+                            <a href="/Doctors/Details/#ID">Details</a> |
+                            <a href="/Doctors/Delete/#ID">Delete</a>
+                        </td>
+                    </tr>`
+                    .replaceAll("#ID", data.id)
+                    .replace("#Name", data.name)
+                    .replace("#Specialization", data.specialization)
+                    .replace("#YearsOfExperience", data.yearsOfExperience)
+                    .replace("#Number", data.number);
+
+                $("#DataTable").append(markup);
+            });
+        }
+    </script>
+}

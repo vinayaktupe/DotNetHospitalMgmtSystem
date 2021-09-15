@@ -75,7 +75,7 @@ namespace HospitalMgmtSystemAPI.Controllers
                 Email = doc.Users.Email,
                 Number = doc.Users.Number,
                 Address = doc.Users.Address,
-                Specialization = doc.Specialization,
+                Specialization = doc.Specialization.ToString(),
                 YearsOfExperience = doc.YearsOfExperience,
                 AdditionalInformation = doc.AdditionalInfo
             });
@@ -176,9 +176,9 @@ namespace HospitalMgmtSystemAPI.Controllers
                                     ? receivedDoctor.YearsOfExperience
                                     : doctor.YearsOfExperience;
 
-            doctor.Specialization = receivedDoctor.Specialization == doctor.Specialization
+            doctor.Specialization = receivedDoctor.Specialization.ToString() == doctor.Specialization.ToString()
                                     ? doctor.Specialization
-                                    : receivedDoctor.Specialization;
+                                    : (Specialization)Convert.ToInt32(receivedDoctor.Specialization);
 
             doctor.AdditionalInfo = receivedDoctor.AdditionalInformation ?? doctor.AdditionalInfo;
 
@@ -192,6 +192,31 @@ namespace HospitalMgmtSystemAPI.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             return Ok(await _doctorService.DeleteDoctor(id));
+        }
+
+        [HttpGet("search/{key}")]
+        public async Task<IActionResult> Search(string? key)
+        {
+            if (key == null)
+            {
+                return BadRequest(new { status = "fail" });
+            }
+
+            var filteredResult = await _doctorService.Search(key);
+
+
+
+            if (filteredResult == null)
+            {
+                return BadRequest(new { status = "fail" });
+            }
+
+            return Ok(new
+            {
+                status = "success",
+                results = filteredResult.Count(),
+                data = filteredResult
+            });
         }
     }
 }

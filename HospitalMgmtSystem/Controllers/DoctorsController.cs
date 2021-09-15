@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace HospitalMgmtSystem.Controllers
@@ -47,7 +48,7 @@ namespace HospitalMgmtSystem.Controllers
                 Address = doc.Users.Address,
                 Email = doc.Users.Email,
                 Number = doc.Users.Number,
-                Specialization = doc.Specialization,
+                Specialization = doc.Specialization.ToString(),
                 YearsOfExperience = doc.YearsOfExperience,
                 AdditionalInformation = doc.AdditionalInfo,
             };
@@ -186,7 +187,7 @@ namespace HospitalMgmtSystem.Controllers
             {
                 ID = doctor.ID,
                 Name = doctor.Users.FirstName + " " + doctor.Users.LastName,
-                Specialization = doctor.Specialization,
+                Specialization = doctor.Specialization.ToString(),
                 YearsOfExperience = doctor.YearsOfExperience,
                 Email = doctor.Users.Email,
                 AdditionalInformation = doctor.AdditionalInfo,
@@ -215,6 +216,30 @@ namespace HospitalMgmtSystem.Controllers
             await _doctorService.UpdateDoctor(doctor);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Search(string id)
+        {
+            if (id == null)
+            {
+                return BadRequest(new { status = "fail" });
+            }
+
+            var filteredResult = await _doctorService.Search(id);
+
+
+
+            if (filteredResult == null)
+            {
+                return BadRequest(new { status = "fail" });
+            }
+
+            return Ok(new
+            {
+                status = "success",
+                results = filteredResult.Count(),
+                data = filteredResult
+            });
         }
 
         private bool DoctorExists(int id)

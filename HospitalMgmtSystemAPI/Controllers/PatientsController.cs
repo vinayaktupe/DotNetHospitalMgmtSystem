@@ -150,5 +150,29 @@ namespace HospitalMgmtSystemAPI.Controllers
         {
             return Ok(await _patientService.DeletePatient(id));
         }
+
+        [HttpGet("search/{key}")]
+        public async Task<IActionResult> Search(string? key)
+        {
+            if (key == null)
+            {
+                return BadRequest(new { status = "fail" });
+            }
+
+            var filteredResult = await _patientService.Search(key);
+
+
+            if (filteredResult == null)
+            {
+                return BadRequest(new { status = "fail" });
+            }
+
+            return Ok(new
+            {
+                status = "success",
+                results = filteredResult.Count(),
+                data = filteredResult
+            });
+        }
     }
 }

@@ -17,7 +17,9 @@ namespace HospitalMgmtSystem.Services.Services
         public Task<Doctor> UpdateDoctor(Doctor doctor);
         public Task<bool> DeleteDoctor(int Id);
         public Task<IEnumerable<Doctor>> GetDoctorByCondition(Func<Doctor, bool> condition);
+        public Task<IEnumerable<UserDoctorViewModel>> Search(string? key);
     }
+
     public class DoctorService : IDoctorService
     {
         public async Task<Doctor> CreateDoctor(Doctor doctor)
@@ -54,10 +56,10 @@ namespace HospitalMgmtSystem.Services.Services
                 Email = o.Users.Email,
                 Number = o.Users.Number,
                 Address = o.Users.Address,
-                Specialization = o.Specialization,
+                Specialization = o.Specialization.ToString(),
                 YearsOfExperience = o.YearsOfExperience,
                 AdditionalInformation = o.AdditionalInfo
-            });
+            }).OrderBy(doc=>doc.Specialization).ThenByDescending(doc=>doc.YearsOfExperience).ThenBy(doc=>doc.Name);
 
             return doctors;
         }
@@ -67,13 +69,13 @@ namespace HospitalMgmtSystem.Services.Services
             return GenericRepository<Doctor>
                 .Inst
                 .Set
-                .Include(doc=>doc.Users)
+                .Include(doc => doc.Users)
                 .Where(doc => doc.ID == Id && doc.IsActive != false).SingleOrDefault();
         }
 
         public async Task<IEnumerable<Doctor>> GetDoctorByCondition(Func<Doctor, bool> condition)
         {
-            var res = GenericRepository<Doctor>.Inst.Set.Include(doc=>doc.Users).Where(condition);
+            var res = GenericRepository<Doctor>.Inst.Set.Include(doc => doc.Users).Where(condition);
             return res;
         }
 
@@ -88,6 +90,52 @@ namespace HospitalMgmtSystem.Services.Services
             }
 
             return null;
+        }
+
+        public async Task<IEnumerable<UserDoctorViewModel>> Search(string? key)
+        {
+            if (key == null)
+            {
+                return null;
+            }
+
+            var data = await GetAllDoctors();
+            data = data.ToList();
+
+            key = key.ToLower();
+
+            var filteredResult = data
+                .Where(doctor =>
+                        doctor.ID.ToString().ToLower().Contains(key)
+
+                        || doctor.YearsOfExperience.ToString().ToLower().Contains(key)
+
+                        || doctor.Specialization.ToString().ToLower().Contains(key)
+
+                        || doctor.Name.ToLower().Contains(key)
+
+                        || doctor.Number.ToLower().Contains(key)
+
+                        || doctor.Email.ToLower().Contains(key)
+
+                        || doctor.AdditionalInformation != null
+                        && doctor.AdditionalInformation.ToLower().Split(" ")
+                        .Any(el =>
+                            key.Split(" ")
+                                .Any(keyEl =>
+                                    el.Contains(keyEl)))
+
+                        || doctor.Address != null
+                        && doctor.Address.ToLower().Split(" ")
+                        .Any(el =>
+                            key.Split(" ")
+                                .Any(keyEl =>
+                                    el.Contains(keyEl)))
+                );
+
+
+
+            return filteredResult;
         }
 
 

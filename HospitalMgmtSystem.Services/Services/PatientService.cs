@@ -17,6 +17,8 @@ namespace HospitalMgmtSystem.Services.Services
         public Task<Patient> CreatePatient(Patient patient);
         public Task<Patient> UpdatePatient(Patient patient);
         public Task<bool> DeletePatient(int Id);
+
+        public Task<IEnumerable<UserPatientViewModel>> Search(string? key);
     }
     public class PatientService : IPatientService
     {
@@ -58,7 +60,7 @@ namespace HospitalMgmtSystem.Services.Services
                 BloodGroup = o.BloodGroup,
                 MedicalHistory = o.MedicalHistory,
                 AdditionalInfo = o.AdditionalInfo
-            });
+            }).OrderBy(patient=>patient.ID);
 
             return patients;
         }
@@ -84,6 +86,52 @@ namespace HospitalMgmtSystem.Services.Services
             }
 
             return null;
+        }
+
+        public async Task<IEnumerable<UserPatientViewModel>> Search(string? key)
+        {
+            if (key == null)
+            {
+                return null;
+            }
+
+            var data = await GetAllPatients();
+            data = data.ToList();
+
+            key = key.ToLower();
+
+            var filteredResult = data
+                .Where(patient =>
+                        patient.ID.ToString().ToLower().Contains(key)
+
+                        || patient.Name.ToLower().Contains(key)
+
+                        || patient.Number.ToLower().Contains(key)
+
+                        || patient.Email.ToLower().Contains(key)
+
+                        || patient.MedicalHistory.ToLower().Split(" ")
+                        .Any(el =>
+                            key.Split(" ")
+                                .Any(keyEl =>
+                                    el.Contains(keyEl)))
+
+                        || patient.AdditionalInfo != null
+                        && patient.AdditionalInfo.ToLower().Split(" ")
+                        .Any(el =>
+                            key.Split(" ")
+                                .Any(keyEl =>
+                                    el.Contains(keyEl)))
+
+                        || patient.Address != null
+                        && patient.Address.ToLower().Split(" ")
+                        .Any(el =>
+                            key.Split(" ")
+                                .Any(keyEl =>
+                                    el.Contains(keyEl)))
+                );
+
+            return filteredResult;
         }
     }
 }
