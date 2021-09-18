@@ -9,9 +9,12 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-
-<partial name="~/Views/Shared/_SearchBar.cshtml" />
-
+<div class="row justify-content-between">
+    <partial name="~/Views/Shared/_SearchBar.cshtml" />
+    <div class="col-2">
+        <input type="number" placeholder="Results Per Page" id="ResultsPerPage" name="ResultsPerPage" class="form-control"/>
+    </div>
+</div>
 <table class="table">
     <thead>
         <tr>
@@ -61,9 +64,16 @@
         }
     </tbody>
 </table>
+<a href="/Doctors?page=@ViewData["Previous"]&resultsPerPage=@ViewData["ResultsPerPage"]" class="btn btn-primary" id="Prev">Prev</a>
+<a href="/Doctors?page=@ViewData["Next"]&resultsPerPage=@ViewData["ResultsPerPage"]" class="btn btn-primary" id="Next">Next</a>
 @section Scripts{
 
     <script>
+        $("#ResultsPerPage").change(evt => {
+            document.querySelector("#Next").href = document.querySelector("#Next").href.split("&")[0] + `&resultsPerPage=${evt.target.value}`
+            document.querySelector("#Prev").href = document.querySelector("#Prev").href.split("&")[0] + `&resultsPerPage=${evt.target.value}`
+        })
+
         $("#searchForm").submit(evt => {
             evt.preventDefault();
             if ($("#key").val() != "") {
@@ -85,18 +95,18 @@
 
             result.forEach(data => {
                 var markup = `
-                    <tr>
-                        <td>#ID</td>
-                        <td>#Name</td>
-                        <td>#Specialization</td>
-                        <td>#YearsOfExperience</td>
-                        <td>#Number</td>
-                        <td>
-                            <a href="/Doctors/Edit/#ID">Edit</a> |
-                            <a href="/Doctors/Details/#ID">Details</a> |
-                            <a href="/Doctors/Delete/#ID">Delete</a>
-                        </td>
-                    </tr>`
+                        <tr>
+                            <td>#ID</td>
+                            <td>#Name</td>
+                            <td>#Specialization</td>
+                            <td>#YearsOfExperience</td>
+                            <td>#Number</td>
+                            <td>
+                                <a href="/Doctors/Edit/#ID">Edit</a> |
+                                <a href="/Doctors/Details/#ID">Details</a> |
+                                <a href="/Doctors/Delete/#ID">Delete</a>
+                            </td>
+                        </tr>`
                     .replaceAll("#ID", data.id)
                     .replace("#Name", data.name)
                     .replace("#Specialization", data.specialization)

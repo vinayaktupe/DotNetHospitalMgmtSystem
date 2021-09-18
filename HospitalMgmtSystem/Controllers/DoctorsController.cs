@@ -25,10 +25,20 @@ namespace HospitalMgmtSystem.Controllers
         }
 
         // GET: Doctors
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([Bind] int page, [Bind] int resultsPerPage)
         {
-            var res = await _doctorService.GetAllDoctors();
-            return View(res);
+            page = page == 0 ? 1 : page;
+            resultsPerPage = resultsPerPage == 0 ? 5 : resultsPerPage;
+
+            var result = await _doctorService.GetAllDoctors();
+
+            int skip = (page - 1) * resultsPerPage;
+
+            var data = result.Skip(skip).Take(resultsPerPage);
+            ViewData["Next"] = result.Count() - skip - resultsPerPage > 0 ? page + 1 : 1;
+            ViewData["Previous"] = page <= 1 ? 1 : page - 1;
+            ViewData["ResultsPerPage"] = resultsPerPage;
+            return View(data);
         }
 
         // GET: Doctors/Details/5
