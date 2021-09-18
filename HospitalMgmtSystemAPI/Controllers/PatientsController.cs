@@ -1,6 +1,7 @@
 ﻿using HospitalMgmtSystem.DAL.Data.Model;
 using HospitalMgmtSystem.Services.Services;
 using HospitalMgmtSystem.Services.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace HospitalMgmtSystemAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PatientsController : ControllerBase
